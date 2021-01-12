@@ -1,3 +1,11 @@
+class DOMHelper {
+	static moveElement(elementId, newDestinationSelector) {
+		const element = document.getElementById(elementId);
+		const destinationElement = document.querySelector(newDestinationSelector);
+		destinationElement.append(element);
+	}
+}
+
 class Tooltip {}
 
 class ProjectItem {
@@ -13,7 +21,15 @@ class ProjectItem {
 	connectSwitchButton() {
 		const projectItemElement = document.getElementById(this.id);
 		const switchBtn = projectItemElement.querySelector('button:last-of-type');
-		switchBtn.addEventListener('click', this.updateProjectListsHandler);
+		switchBtn.addEventListener(
+			'click', 
+			this.updateProjectListsHandler.bind(null, this.id)
+		);
+	}
+	
+	update(updateProjectFn, type) {
+		this.updateProjectListsHandler = updateProjectFn;
+		this.connectSwitchButton();
 	}
 }
 
@@ -33,8 +49,10 @@ class ProjectList {
 		this.switchHandler = switchHandlerFunction;
 	}
 	
-	addProject() {
-		console.log(this);
+	addProject(project) {
+		this.projects.push(project);
+		DOMHelper.moveElement(project.id, `#${this.type}-projects ul`);
+		project.update(this.switchProject.bind(this), this.type);
 	}
 	
 	switchProject(projectId) {
